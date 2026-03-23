@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HackJP — Coming Soon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Mono:wght@300;400;500&family=Bebas+Neue&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --crimson: #BC002D;
+    --crimson-dim: rgba(188,0,45,0.15);
+    --ink: #0D0D0D;
+    --paper: #F2EDE8;
+    --paper-dim: #E8E0D8;
+    --ash: #2A2A2A;
+    --smoke: #9A9490;
+    --faint: rgba(242,237,232,0.06);
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'Cormorant Garamond', serif;
+    overflow-x: hidden;
+    cursor: crosshair;
+  }
+
+  /* Washi paper grain */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 200;
+    opacity: 0.6;
+    mix-blend-mode: overlay;
+  }
+
+  /* Hinomaru — giant fading circle */
+  .hinomaru {
+    position: fixed;
+    right: -8vw;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 65vw;
+    height: 65vw;
+    border-radius: 50%;
+    border: 1px solid rgba(188,0,45,0.08);
+    pointer-events: none;
+    z-index: 0;
+    animation: hinomaru-breathe 8s ease-in-out infinite;
+  }
+  .hinomaru::before {
+    content: '';
+    position: absolute;
+    inset: 8%;
+    border-radius: 50%;
+    border: 1px solid rgba(188,0,45,0.06);
+  }
+  .hinomaru::after {
+    content: '';
+    position: absolute;
+    inset: 20%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(188,0,45,0.05) 0%, transparent 70%);
+  }
+  @keyframes hinomaru-breathe {
+    0%, 100% { opacity: 0.6; transform: translateY(-50%) scale(1); }
+    50% { opacity: 1; transform: translateY(-50%) scale(1.015); }
+  }
+
+  /* Ink brush strokes — decorative horizontal lines */
+  .brush-lines {
+    position: fixed;
+    left: 0; right: 0;
+    top: 0; bottom: 0;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+  }
+  .brush-line {
+    position: absolute;
+    left: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(242,237,232,0.04) 30%, rgba(242,237,232,0.04) 70%, transparent);
+    animation: brush-enter 1.2s ease forwards;
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+  @keyframes brush-enter {
+    to { transform: scaleX(1); }
+  }
+
+  /* Vertical red accent — right side, thin */
+  .accent-right {
+    position: fixed;
+    top: 15%;
+    right: 0;
+    width: 3px;
+    height: 70%;
+    background: linear-gradient(to bottom, transparent, var(--crimson) 30%, var(--crimson) 70%, transparent);
+    z-index: 50;
+    opacity: 0;
+    animation: fade-in 1s ease 1s forwards;
+  }
+
+  @keyframes fade-in {
+    to { opacity: 1; }
+  }
+
+  /* Layout */
+  .page {
+    min-height: 100vh;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    padding: 0 6vw;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Header */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2.8rem 0;
+    border-bottom: 1px solid rgba(242,237,232,0.08);
+    opacity: 0;
+    animation: rise 0.9s ease 0.2s forwards;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+
+  /* Torii gate mark — CSS only */
+  .torii {
+    width: 28px;
+    height: 26px;
+    position: relative;
+    flex-shrink: 0;
+  }
+  /* Top crossbeam */
+  .torii::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -4px; right: -4px;
+    height: 4px;
+    background: var(--crimson);
+    border-radius: 1px;
+  }
+  /* Second crossbeam */
+  .torii::after {
+    content: '';
+    position: absolute;
+    top: 8px; left: 0; right: 0;
+    height: 3px;
+    background: var(--crimson);
+    border-radius: 1px;
+  }
+  .torii-legs {
+    position: absolute;
+    bottom: 0; left: 4px; right: 4px;
+    top: 0;
+    display: flex;
+    justify-content: space-between;
+  }
+  .torii-leg {
+    width: 4px;
+    height: 100%;
+    background: var(--crimson);
+    border-radius: 1px;
+  }
+
+  .logo-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.7rem;
+    letter-spacing: 0.12em;
+    font-weight: 400;
+  }
+  .logo-text .jp {
+    color: var(--crimson);
+  }
+
+  .badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.22em;
+    color: var(--smoke);
+    border: 1px solid rgba(242,237,232,0.1);
+    padding: 0.35rem 0.85rem;
+    text-transform: uppercase;
+  }
+
+  /* Hero */
+  .hero {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 5vh 0;
+    max-width: 780px;
+    position: relative;
+  }
+
+  .eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.28em;
+    color: var(--crimson);
+    text-transform: uppercase;
+    margin-bottom: 2.8rem;
+    opacity: 0;
+    animation: rise 0.7s ease 0.5s forwards;
+  }
+
+  /* Vertical JP text — editorial element */
+  .vertical-jp {
+    position: absolute;
+    right: -2vw;
+    top: 50%;
+    transform: translateY(-50%) rotate(90deg);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.35em;
+    color: rgba(242,237,232,0.12);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .headline {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(5rem, 13vw, 12rem);
+    font-weight: 400;
+    line-height: 0.88;
+    letter-spacing: 0.04em;
+    opacity: 0;
+    animation: rise 0.8s ease 0.6s forwards;
+  }
+
+  .headline .stroke {
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(242,237,232,0.2);
+  }
+
+  .headline .red { color: var(--crimson); }
+
+  /* Thin rule */
+  .rule {
+    width: 60px;
+    height: 1px;
+    background: var(--crimson);
+    margin: 2.8rem 0;
+    opacity: 0;
+    animation: expand 0.8s ease 0.8s forwards;
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+  @keyframes expand { to { transform: scaleX(1); opacity: 1; } }
+
+  .tagline {
+    font-size: 1.15rem;
+    font-weight: 300;
+    line-height: 1.75;
+    color: var(--smoke);
+    max-width: 500px;
+    opacity: 0;
+    animation: rise 0.7s ease 0.9s forwards;
+    font-style: italic;
+  }
+  .tagline strong {
+    color: var(--paper);
+    font-weight: 600;
+    font-style: normal;
+  }
+
+  /* Haiku-like detail tags */
+  .detail-row {
+    display: flex;
+    gap: 2rem;
+    margin-top: 2.5rem;
+    opacity: 0;
+    animation: rise 0.6s ease 1s forwards;
+    flex-wrap: wrap;
+  }
+  .detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  .detail-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--paper);
+    letter-spacing: 0.1em;
+  }
+  .detail-lbl {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.55rem;
+    color: var(--smoke);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  /* Countdown */
+  .countdown-wrap {
+    margin-top: 4rem;
+    opacity: 0;
+    animation: rise 0.7s ease 1.05s forwards;
+  }
+
+  .countdown-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.22em;
+    color: var(--smoke);
+    text-transform: uppercase;
+    margin-bottom: 1.4rem;
+  }
+
+  .countdown {
+    display: flex;
+    gap: 0;
+    align-items: flex-start;
+  }
+
+  .cd-unit { display: flex; flex-direction: column; align-items: center; }
+
+  .cd-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3rem, 6vw, 5.5rem);
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    min-width: 2.4ch;
+    text-align: center;
+  }
+
+  .cd-sep {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.5rem, 5vw, 4.5rem);
+    color: var(--crimson);
+    line-height: 1;
+    padding: 0 0.25rem;
+    opacity: 0.7;
+  }
+
+  .cd-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 0.18em;
+    color: var(--smoke);
+    text-transform: uppercase;
+    margin-top: 0.4rem;
+  }
+
+  /* Form */
+  .form-wrap {
+    margin-top: 3.5rem;
+    opacity: 0;
+    animation: rise 0.7s ease 1.2s forwards;
+  }
+
+  .form-row {
+    display: flex;
+    gap: 0;
+    max-width: 460px;
+  }
+
+  .email-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(242,237,232,0.2);
+    color: var(--paper);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.82rem;
+    padding: 0.9rem 0;
+    outline: none;
+    letter-spacing: 0.06em;
+    transition: border-color 0.3s;
+  }
+  .email-input::placeholder { color: var(--smoke); }
+  .email-input:focus { border-bottom-color: var(--crimson); }
+
+  .submit-btn {
+    background: transparent;
+    color: var(--paper);
+    border: none;
+    border-bottom: 1px solid var(--crimson);
+    font-family: 'DM Mono', monospace;
+    font-weight: 500;
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 0.9rem 0 0.9rem 2rem;
+    cursor: crosshair;
+    transition: color 0.2s, letter-spacing 0.3s;
+    white-space: nowrap;
+  }
+  .submit-btn:hover {
+    color: var(--crimson);
+    letter-spacing: 0.28em;
+  }
+
+  .form-note {
+    margin-top: 1rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.14em;
+    color: rgba(154,148,144,0.6);
+    font-style: italic;
+  }
+
+  .success-msg {
+    display: none;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.95rem;
+    font-style: italic;
+    color: var(--paper);
+    margin-top: 1rem;
+    letter-spacing: 0.05em;
+  }
+  .success-msg span { color: var(--crimson); }
+
+  /* JP watermark */
+  .watermark {
+    position: fixed;
+    right: -3vw;
+    bottom: -6vh;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(16rem, 38vw, 40rem);
+    font-weight: 400;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(242,237,232,0.03);
+    pointer-events: none;
+    line-height: 1;
+    z-index: 0;
+    letter-spacing: 0.05em;
+    user-select: none;
+  }
+
+  /* Footer */
+  footer {
+    padding: 2.2rem 0;
+    border-top: 1px solid rgba(242,237,232,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    opacity: 0;
+    animation: rise 0.7s ease 1.35s forwards;
+  }
+
+  .footer-left {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.16em;
+    color: var(--smoke);
+    text-transform: uppercase;
+  }
+
+  .footer-right {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+  }
+
+  .footer-link {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.16em;
+    color: var(--smoke);
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .footer-link:hover { color: var(--paper); }
+
+  /* Pulsing circle — Hinomaru-inspired dot */
+  .dot-hinomaru {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--crimson);
+    animation: hinomaru-pulse 3s ease-in-out infinite;
+  }
+  @keyframes hinomaru-pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(188,0,45,0.4); }
+    50% { opacity: 0.7; box-shadow: 0 0 0 6px rgba(188,0,45,0); }
+  }
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 600px) {
+    .form-row { flex-direction: column; gap: 1.5rem; }
+    .submit-btn { padding: 0.9rem 0; border-left: none; }
+    .vertical-jp { display: none; }
+    .badge { display: none; }
+    .footer-right { gap: 1.2rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Hinomaru circle -->
+<div class="hinomaru"></div>
+<div class="brush-lines" id="brushLines"></div>
+<div class="accent-right"></div>
+<div class="watermark">JP</div>
+
+<div class="page">
+  <header>
+    <div class="logo">
+      <!-- Torii gate mark -->
+      <div class="torii">
+        <div class="torii-legs">
+          <div class="torii-leg"></div>
+          <div class="torii-leg"></div>
+        </div>
+      </div>
+      <div class="logo-text">Hack<span class="jp">JP</span></div>
+    </div>
+    <div class="badge">Tokyo · 2025</div>
+  </header>
+
+  <main class="hero">
+    <div class="vertical-jp">HackJP — The Rising Platform — 2025</div>
+
+    <p class="eyebrow">// The rising platform</p>
+
+    <h1 class="headline">
+      Craft.<br/>
+      <span class="stroke">Build.</span><br/>
+      <span class="red">Ship.</span>
+    </h1>
+
+    <div class="rule"></div>
+
+    <p class="tagline">
+      HackJP is where <strong>precision meets velocity</strong> — a home for Japan's builders and global hackers who move with quiet focus and ship with mastery.
+    </p>
+
+    <div class="detail-row">
+      <div class="detail-item">
+        <span class="detail-val">47</span>
+        <span class="detail-lbl">Prefectures</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-val">∞</span>
+        <span class="detail-lbl">Kaizen mindset</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-val">0.01</span>
+        <span class="detail-lbl">Margin of error</span>
+      </div>
+    </div>
+
+    <div class="countdown-wrap">
+      <p class="countdown-label">// Launching in</p>
+      <div class="countdown">
+        <div class="cd-unit">
+          <span class="cd-num" id="days">00</span>
+          <span class="cd-label">Days</span>
+        </div>
+        <span class="cd-sep">:</span>
+        <div class="cd-unit">
+          <span class="cd-num" id="hours">00</span>
+          <span class="cd-label">Hours</span>
+        </div>
+        <span class="cd-sep">:</span>
+        <div class="cd-unit">
+          <span class="cd-num" id="mins">00</span>
+          <span class="cd-label">Min</span>
+        </div>
+        <span class="cd-sep">:</span>
+        <div class="cd-unit">
+          <span class="cd-num" id="secs">00</span>
+          <span class="cd-label">Sec</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-wrap">
+      <div class="form-row">
+        <input class="email-input" type="email" id="emailInput" placeholder="your@email.com" />
+        <button class="submit-btn" onclick="handleNotify()">Notify me →</button>
+      </div>
+      <p class="form-note">// No noise. Only signal.</p>
+      <p class="success-msg" id="successMsg"><span>✦</span> Noted. We'll reach you at launch.</p>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-left">hackjp.com &nbsp;·&nbsp; All rights reserved</div>
+    <div class="footer-right">
+      <div class="dot-hinomaru"></div>
+      <a href="#" class="footer-link">Twitter</a>
+      <a href="#" class="footer-link">LinkedIn</a>
+      <a href="mailto:hello@hackjp.com" class="footer-link">Contact</a>
+    </div>
+  </footer>
+</div>
+
+<script>
+  // Brush lines
+  const bl = document.getElementById('brushLines');
+  const positions = [18, 35, 52, 68, 83];
+  positions.forEach((pct, i) => {
+    const line = document.createElement('div');
+    line.className = 'brush-line';
+    line.style.top = pct + '%';
+    line.style.width = (55 + Math.random() * 35) + '%';
+    line.style.animationDelay = (0.4 + i * 0.15) + 's';
+    bl.appendChild(line);
+  });
+
+  // Countdown ~90 days
+  const launch = new Date();
+  launch.setDate(launch.getDate() + 90);
+  launch.setHours(9, 0, 0, 0);
+
+  function pad(n) { return String(n).padStart(2, '0'); }
+
+  function tick() {
+    const diff = launch - new Date();
+    if (diff <= 0) return;
+    document.getElementById('days').textContent  = pad(Math.floor(diff / 86400000));
+    document.getElementById('hours').textContent = pad(Math.floor((diff % 86400000) / 3600000));
+    document.getElementById('mins').textContent  = pad(Math.floor((diff % 3600000) / 60000));
+    document.getElementById('secs').textContent  = pad(Math.floor((diff % 60000) / 1000));
+  }
+  tick();
+  setInterval(tick, 1000);
+
+  function handleNotify() {
+    const input = document.getElementById('emailInput');
+    if (!input.value || !input.value.includes('@')) {
+      input.style.borderBottomColor = 'var(--crimson)';
+      input.focus();
+      return;
+    }
+    input.style.borderBottomColor = '';
+    document.getElementById('successMsg').style.display = 'block';
+    input.value = '';
+    input.placeholder = 'noted ✦';
+    input.disabled = true;
+    const btn = document.querySelector('.submit-btn');
+    btn.disabled = true;
+    btn.textContent = 'Done →';
+  }
+
+  document.getElementById('emailInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') handleNotify();
+  });
+</script>
+</body>
+</html>
